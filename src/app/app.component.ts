@@ -33,7 +33,7 @@ export class MyApp {
   constructor(platform: Platform,
               statusBar: StatusBar,
               splashScreen: SplashScreen,
-              spp: SplitPaneProvider) {
+              private spp: SplitPaneProvider) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
@@ -41,7 +41,8 @@ export class MyApp {
       splashScreen.hide();
     });
 
-    this.rootNav$ = spp.rootSubject$.subscribe((menu) => {
+    this.rootNav$ = this.spp.rootSubject$.subscribe((menu) => {
+      console.log('rootNav', menu);
       if (this.rootPage !== menu.pageName) {
         this.rootPage = menu.pageName;
       } else {
@@ -49,15 +50,15 @@ export class MyApp {
       }
     });
 
-    this.menu$ = spp.menuSubject$.subscribe((menus) => {
+    this.menu$ = this.spp.menuSubject$.subscribe((menus) => {
       this.menus = menus;
     });
 
-    spp.setMenuPage(this.menu1);
+    this.spp.setMenuPage(this.menu1);
   }
 
-  changeRoot(page: string) {
-    this.rootPage = page;
+  changeRoot(menu: Menu) {
+    this.spp.setRootPage(menu);
   }
 }
 

@@ -22,4 +22,7 @@ export class PushRootPage {
     console.log('ionViewDidLoad PushRootPage');
   }
 
+  goChild() {
+    this.navCtrl.push('PushChildPage');
+  }
 }
