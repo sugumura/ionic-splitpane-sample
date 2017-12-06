@@ -1,19 +1,20 @@
-import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { NavController, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { HomePage } from '../pages/home/home';
-
-interface Menu {
-  pageName: string;
-  label: string;
-}
+import { Menu } from '../model/menu';
+import { Subscription } from "rxjs/Subscription";
+import { SplitPaneProvider } from "../providers/split-pane/split-pane";
 
 @Component({
   templateUrl: 'app.html'
 })
 export class MyApp {
+  @ViewChild('content') nav: NavController;
+
   rootPage: any = 'HomePage';
+  menus: Array<Menu>;
 
   menu1: Array<Menu> = [
     {
@@ -26,15 +27,33 @@ export class MyApp {
     },
   ];
 
+  rootNav$: Subscription;
+  menu$: Subscription;
+
   constructor(platform: Platform,
               statusBar: StatusBar,
-              splashScreen: SplashScreen) {
+              splashScreen: SplashScreen,
+              spp: SplitPaneProvider) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       splashScreen.hide();
     });
+
+    this.rootNav$ = spp.rootSubject$.subscribe((menu) => {
+      if (this.rootPage !== menu.pageName) {
+        this.rootPage = menu.pageName;
+      } else {
+        this.nav.goToRoot({});
+      }
+    });
+
+    this.menu$ = spp.menuSubject$.subscribe((menus) => {
+      this.menus = menus;
+    });
+
+    spp.setMenuPage(this.menu1);
   }
 
   changeRoot(page: string) {
